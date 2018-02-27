@@ -17,7 +17,7 @@ su = browser.find_element_by_id("su")
 #
 
 # method 1, send keys with return
-kw.send_keys("Selenium", Keys.RETURN)
+# kw.send_keys("Selenium", Keys.RETURN)
 
 # method 2, send keys then click submit button
 # kw.send_keys("Selenium")
@@ -26,6 +26,16 @@ kw.send_keys("Selenium", Keys.RETURN)
 # method 3, send keys then submit form
 # kw.send_keys("Selenium")
 # kw.submit()
+
+# method 4, execute javascript
+browser.execute_script(
+    '''
+    var kw = document.getElementById('kw');
+    var su = document.getElementById('su');
+    kw.value = 'Selenium';
+    su.click();
+    '''
+)
 
 time.sleep(3)
 
