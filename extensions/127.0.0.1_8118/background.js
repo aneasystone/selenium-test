@@ -4,7 +4,7 @@
             mode: "fixed_servers",
             rules: {
                 singleProxy: {
-                    scheme: http,
+                    scheme: "http",
                     host: "127.0.0.1",
                     port: 8118
                 },
@@ -18,8 +18,8 @@
         function (details) {
             return {
                 authCredentials: {
-                    username:  ,
-                    password:  
+                    username: "",
+                    password: ""
                 }
             };
         },

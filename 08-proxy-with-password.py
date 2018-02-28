@@ -9,7 +9,7 @@ extension_dir = './extensions'
 proxy = {
     'schema': 'http',
     'host': '127.0.0.1',
-    'port': 8118,
+    'port': '8118',
     'username': '',
     'password': ''
 }
@@ -45,7 +45,7 @@ def get_background_content():
             mode: "fixed_servers",
             rules: {{
                 singleProxy: {{
-                    scheme: {0},
+                    scheme: "{0}",
                     host: "{1}",
                     port: {2}
                 }},
@@ -79,7 +79,7 @@ def get_extension_file_path():
     zf.writestr('manifest.json', get_manifest_content())
     zf.writestr('background.js', get_background_content())
     zf.close()
-    return path
+    return os.path.abspath(path)
 
 
 def get_extension_dir_path():
@@ -88,15 +88,15 @@ def get_extension_dir_path():
         shutil.rmtree(path)
     os.makedirs(path)
 
-    with open(path + '/manifest.json', 'wb') as f:
+    with open(path + '/manifest.json', 'w') as f:
         f.write(get_manifest_content())
-    with open(path + '/background.js', 'wb') as f:
+    with open(path + '/background.js', 'w') as f:
         f.write(get_background_content())
-    return path
+    return os.path.abspath(path)
 
 chrome_options = webdriver.ChromeOptions()
-chrome_options.add_extension(get_extension_file_path())
-# chrome_options.add_argument('--load-extension={0}'.format(get_extension_dir_path()))
+# chrome_options.add_extension(get_extension_file_path())
+chrome_options.add_argument('--load-extension={0}'.format(get_extension_dir_path()))
 
 browser = webdriver.Chrome(
     executable_path="./drivers/chromedriver.exe",
