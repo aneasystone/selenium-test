@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created by aneasystone on 2018/3/2
+import random
+
 from PIL import Image, ImageChops
 from numpy import array
 from selenium import webdriver
@@ -30,8 +32,8 @@ def get_slider_offset_from_diff_image(diff):
     im = array(diff)
     width, height = diff.size
     diff = []
-    for i in xrange(height):
-        for j in xrange(width):
+    for i in range(height):
+        for j in range(width):
             # black is not only (0,0,0)
             if im[i, j, 0] > 15 or im[i, j, 1] > 15 or im[i, j, 1] > 15:
                 diff.append(j)
@@ -92,6 +94,70 @@ def get_slice_offset(slice):
     im.save('D:/slice.png')
     return get_slider_offset_from_diff_image(im)
 
+
+# refer: https://ask.hellobi.com/blog/cuiqingcai/9796
+def get_track(distance):
+    track = []
+    current = 0
+    mid = distance * 4 / 5
+    t = 0.2
+    v = 0
+
+    while current < distance:
+        if current < mid:
+            a = 2
+        else:
+            a = -3
+        v0 = v
+        v = v0 + a * t
+        move = v0 * t + 1 / 2 * a * t * t
+        current += move
+        track.append(round(move))
+    return track
+
+
+def fake_drag(browser, knob, offset):
+    # seconds = random.uniform(2, 6)
+    # print(seconds)
+    # samples = int(seconds*10)
+    # diffs = sorted(random.sample(range(0, offset), samples-1))
+    # diffs.insert(0, 0)
+    # diffs.append(offset)
+    # ActionChains(browser).click_and_hold(knob).perform()
+    # for i in range(samples):
+    #     ActionChains(browser).pause(seconds/samples).move_by_offset(diffs[i+1]-diffs[i], 0).perform()
+    # ActionChains(browser).release().perform()
+
+    tracks = get_track(offset)
+    ActionChains(browser).click_and_hold(knob).perform()
+    sum = 0
+    for x in tracks:
+        sum += x
+        print(sum)
+        ActionChains(browser).move_by_offset(x, 0).perform()
+    ActionChains(browser).pause(0.5).release().perform()
+
+    return
+
+
+def do_crack(browser):
+    slice = browser.find_element_by_class_name("gt_slice")
+    slice_offset = get_slice_offset(slice)
+    print(slice_offset)
+
+    images = browser.find_elements_by_class_name("gt_cut_fullbg_slice")
+    images_bg = browser.find_elements_by_class_name("gt_cut_bg_slice")
+    image_url = get_image_url_from_style(images[0].get_attribute("style"))
+    image_url_bg = get_image_url_from_style(images_bg[0].get_attribute("style"))
+    css = get_image_css(images)
+    offset = get_slider_offset(image_url, image_url_bg, css)
+    print(offset)
+
+    knob = browser.find_element_by_class_name("gt_slider_knob")
+    # ActionChains(browser).drag_and_drop_by_offset(knob, offset - slice_offset, 0).perform()
+    fake_drag(browser, knob, offset - slice_offset)
+    return
+
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--start-maximized")
 browser = webdriver.Chrome(
@@ -111,18 +177,4 @@ Wait(browser, 60).until(
 register = browser.find_element_by_id("emailRegist")
 register.click()
 
-slice = browser.find_element_by_class_name("gt_slice")
-slice_offset = get_slice_offset(slice)
-print(slice_offset)
-
-images = browser.find_elements_by_class_name("gt_cut_fullbg_slice")
-images_bg = browser.find_elements_by_class_name("gt_cut_bg_slice")
-image_url = get_image_url_from_style(images[0].get_attribute("style"))
-image_url_bg = get_image_url_from_style(images_bg[0].get_attribute("style"))
-css = get_image_css(images)
-offset = get_slider_offset(image_url, image_url_bg, css)
-print(offset)
-
-knob = browser.find_element_by_class_name("gt_slider_knob")
-# ActionChains(browser).drag_and_drop_by_offset(knob, offset - slice_offset, 0).perform()
-ActionChains(browser).click_and_hold(knob).move_by_offset(offset - slice_offset, 0).release().perform()
+do_crack(browser)
