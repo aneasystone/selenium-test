@@ -130,7 +130,8 @@ def fake_drag(browser, knob, offset):
     # ActionChains(browser).release().perform()
 
     # tracks = get_track(offset)
-    offsets, tracks = easing.get_tracks(offset, random.uniform(2, 6), 'ease_out_quart')
+    offsets, tracks = easing.get_tracks(offset, 12, 'ease_out_expo')
+    print(offsets)
     ActionChains(browser).click_and_hold(knob).perform()
     for x in tracks:
         ActionChains(browser).move_by_offset(x, 0).perform()
