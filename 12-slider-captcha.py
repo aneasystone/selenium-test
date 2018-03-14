@@ -11,6 +11,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait as Wait
 from selenium.webdriver.support import expected_conditions as Expect
 import requests, io, re
+import easing
 
 
 def convert_css_to_offset(px):
@@ -128,12 +129,10 @@ def fake_drag(browser, knob, offset):
     #     ActionChains(browser).pause(seconds/samples).move_by_offset(diffs[i+1]-diffs[i], 0).perform()
     # ActionChains(browser).release().perform()
 
-    tracks = get_track(offset)
+    # tracks = get_track(offset)
+    offsets, tracks = easing.get_tracks(offset, random.uniform(2, 6), 'ease_out_quart')
     ActionChains(browser).click_and_hold(knob).perform()
-    sum = 0
     for x in tracks:
-        sum += x
-        print(sum)
         ActionChains(browser).move_by_offset(x, 0).perform()
     ActionChains(browser).pause(0.5).release().perform()
 
